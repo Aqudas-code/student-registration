@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .response-box {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            width: 80%;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+        .response-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .response-content {
+            padding: 10px;
+            background-color: #eef;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .response-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .response-table th, .response-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .response-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        async function insertData() {
+            const data = {
+                name: document.getElementById('name').value,
+                class: document.getElementById('class').value,
+                roll_no: document.getElementById('roll_no').value,
+                reg_no: document.getElementById('reg_no').value,
+                attendence: document.getElementById('attendence').value,
+                category_list: document.getElementById('category').value
+            };
+            
+            const response = await fetch('http://127.0.0.1:5000/insert', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            document.getElementById('insertResult').innerHTML = `<div class='response-title'>Response:</div><div class='response-content'>${JSON.stringify(result, null, 2)}</div>`;
+        }
+        
+        async function getData() {
+            const data = {
+                roll_no: document.getElementById('get_roll_no').value,
+                name: document.getElementById('get_name').value
+            };
+            
+            const response = await fetch('http://127.0.0.1:5000/get', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            if (result.error || result.message) {
+                document.getElementById('getResult').innerHTML = `<div class='response-title'>Response:</div><div class='response-content'>${JSON.stringify(result, null, 2)}</div>`;
+            } else {
+                document.getElementById('getResult').innerHTML = `
+                    <div class='response-title'>Response:</div>
+                    <table class='response-table'>
+                        <tr><th>Attendance</th><td>${result.ATTENDENCE}</td></tr>
+                        <tr><th>Category</th><td>${result.CATEGORY_LIST}</td></tr>
+                        <tr><th>Class</th><td>${result.CLASS}</td></tr>
+                        <tr><th>Name</th><td>${result.NAME}</td></tr>
+                        <tr><th>Reg No</th><td>${result.REG_NO}</td></tr>
+                        <tr><th>Roll No</th><td>${result.ROLL_NO}</td></tr>
+                        <tr><th>Timestamp</th><td>${result.TIME_STAMP}</td></tr>
+                    </table>
+                `;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>STUDENT REGISTRATION</h2>
+    <input type="text" id="name" placeholder="Name"><br>
+    <input type="text" id="class" placeholder="Class"><br>
+    <input type="text" id="roll_no" placeholder="Roll No"><br>
+    <input type="text" id="reg_no" placeholder="Reg No"><br>
+    <input type="text" id="attendence" placeholder="Attendance"><br>
+    <input type="text" id="category" placeholder="Category List"><br>
+    <button onclick="insertData()">Insert</button>
+    <div class="response-box" id="insertResult"></div>
+    
+    <h2>STUDENT INFORMATION</h2>
+    <input type="text" id="get_roll_no" placeholder="Roll No"><br>
+    <input type="text" id="get_name" placeholder="Name"><br>
+    <button onclick="getData()">Get Data</button>
+    <div class="response-box" id="getResult"></div>
+</body>
+</html>
